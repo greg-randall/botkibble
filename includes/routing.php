@@ -147,13 +147,14 @@ add_action( 'init', function (): void {
  * ---------------------------------------------------------------------- */
 
 /** Register the custom rewrite rule. */
-add_action( 'init', function (): void {
+function mfa_register_rewrite_rule(): void {
     add_rewrite_rule(
         '(.+)\.md/?$',
         'index.php?mfa_path=$matches[1]&mfa_format=markdown',
         'top'
     );
-} );
+}
+add_action( 'init', 'mfa_register_rewrite_rule' );
 
 /** Disable canonical redirection for Markdown requests to prevent .md/ redirects. */
 add_filter( 'redirect_canonical', function ( $redirect_url ) {
