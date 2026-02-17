@@ -85,6 +85,7 @@ function mfa_flush_entire_cache(): void {
     }
 
     mfa_rmdir_contents( $cache_dir );
+    mfa_protect_directory( $cache_dir );
 }
 
 /**
@@ -106,12 +107,13 @@ function mfa_rmdir_contents( string $dir ): void {
 
         // Never follow symlinks — remove the link itself and move on.
         if ( is_link( $path ) ) {
-            @unlink( $path );
+            wp_delete_file( $path );
             continue;
         }
 
         if ( is_dir( $path ) ) {
             mfa_rmdir_contents( $path );
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- no wp_rmdir() exists; deleting our own cache directory.
             @rmdir( $path );
         } else {
             mfa_safe_unlink( $path );
