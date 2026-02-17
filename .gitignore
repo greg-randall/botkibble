@@ -1,0 +1,18 @@
+# Dependencies
+/vendor/
+
+# Ignore all markdown files
+*.md
+!README.md
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# PHP
+composer.phar
+*.log

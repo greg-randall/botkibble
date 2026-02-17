@@ -1,0 +1,21 @@
+{
+    "name": "greg-randall/markdown-for-agents",
+    "description": "Serve WordPress posts and pages as Markdown for AI agents and crawlers.",
+    "homepage": "https://github.com/greg-randall/markdown-for-agents",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-only",
+    "authors": [
+        {
+            "name": "Greg Randall",
+            "homepage": "https://gregr.org"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "league/html-to-markdown": "^5.0",
+        "symfony/yaml": "^5.0 || ^6.0 || ^7.0"
+    },
+    "autoload": {
+        "files": []
+    }
+}
