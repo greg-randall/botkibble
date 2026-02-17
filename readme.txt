@@ -1,5 +1,5 @@
 === Markdown for Agents ===
-Contributors: GregRandall
+Contributors: gregrandall
 Tags: markdown, ai, agents, crawlers, api
 Requires at least: 6.0
 Tested up to: 6.7
