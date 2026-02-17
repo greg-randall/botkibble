@@ -2,10 +2,10 @@
 Contributors: gregrandall
 Tags: markdown, ai, agents, crawlers, api
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 8.0
 Stable tag: 1.1.1
-License: GPLv2
+License: GPL-2.0-only
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Serve published posts and pages as clean Markdown with YAML frontmatter — built for AI agents and crawlers.
