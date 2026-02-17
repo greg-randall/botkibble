@@ -14,6 +14,8 @@ Serve published posts and pages as clean Markdown with YAML frontmatter — buil
 
 Markdown for Agents converts any published post or page on your WordPress site to Markdown. It caches the output and serves it with `text/markdown` headers.
 
+[GitHub Repository](https://github.com/greg-randall/markdown-for-agents)
+
 **Three ways to request Markdown:**
 
 * **`.md` suffix** — append `.md` to any post or page URL (e.g. `example.com/my-post.md`)
