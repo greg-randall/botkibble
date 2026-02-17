@@ -21,28 +21,29 @@ add_action( 'init', function (): void {
         return;
     }
 
-    $request_method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    $request_method = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) );
     if ( 'GET' !== $request_method ) {
         return;
     }
 
-    $uri = parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH );
+    $uri = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ), PHP_URL_PATH );
     if ( ! $uri ) {
         return;
     }
 
     // Subdirectory-aware path resolution.
-    $site_path = parse_url( site_url(), PHP_URL_PATH ) ?: '';
+    $site_path = wp_parse_url( site_url(), PHP_URL_PATH ) ?: '';
     $relative_path = substr( $uri, strlen( $site_path ) );
     $clean_uri = trim( $relative_path, '/' );
 
     // Fast-Path: detect all three markdown access methods.
     $is_md_suffix   = str_ends_with( $clean_uri, '.md' );
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public API, no state change.
     $is_query_param = ( isset( $_GET['format'] ) && 'markdown' === sanitize_text_field( wp_unslash( $_GET['format'] ) ) );
     $is_accept      = (
         apply_filters( 'markdown_enable_accept_header', true )
         && isset( $_SERVER['HTTP_ACCEPT'] )
-        && str_contains( $_SERVER['HTTP_ACCEPT'], 'text/markdown' )
+        && str_contains( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ), 'text/markdown' )
     );
 
     if ( ! $is_md_suffix && ! $is_query_param && ! $is_accept ) {
@@ -136,6 +137,7 @@ add_action( 'init', function (): void {
     header( 'Link: <' . esc_url( $canonical ) . '>; rel="canonical"' );
     mfa_send_content_signal_header();
 
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- serving text/markdown, not HTML.
     echo $markdown;
     exit;
 }, 5 );
@@ -159,7 +161,7 @@ add_filter( 'redirect_canonical', function ( $redirect_url ) {
     if ( 'markdown' === get_query_var( 'mfa_format' ) ) {
         return false;
     }
-    $uri = $_SERVER['REQUEST_URI'] ?? '';
+    $uri = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
     if ( preg_match( '/\.md(\/?\?.*)?$/', $uri ) ) {
         return false;
     }
@@ -215,8 +217,8 @@ add_filter( 'request', function ( array $query_vars ): array {
 
     // Round-trip verification: confirm the resolved post's permalink matches
     // the requested path. Catches slug collisions from imports/plugins/races.
-    $post_uri = trim( parse_url( get_permalink( $post ), PHP_URL_PATH ) ?: '', '/' );
-    $site_uri = trim( parse_url( site_url(), PHP_URL_PATH ) ?: '', '/' );
+    $post_uri = trim( wp_parse_url( get_permalink( $post ), PHP_URL_PATH ) ?: '', '/' );
+    $site_uri = trim( wp_parse_url( site_url(), PHP_URL_PATH ) ?: '', '/' );
     if ( $site_uri ) {
         $post_uri = substr( $post_uri, strlen( $site_uri ) + 1 );
     }
@@ -292,6 +294,7 @@ add_action( 'template_redirect', function (): void {
     header( 'Link: <' . esc_url( get_permalink( $post ) ) . '>; rel="canonical"' );
     mfa_send_content_signal_header( $post );
 
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- serving text/markdown, not HTML.
     echo $markdown;
     exit;
 } );
@@ -385,7 +388,8 @@ function mfa_safe_unlink( string $path ): void {
     if ( ! file_exists( $path ) ) {
         return;
     }
-    if ( @unlink( $path ) ) {
+    wp_delete_file( $path );
+    if ( ! file_exists( $path ) ) {
         return;
     }
     // Unlink failed — truncate so the file is empty/unusable.
@@ -407,6 +411,7 @@ function mfa_safe_unlink( string $path ): void {
  */
 function mfa_should_serve_markdown(): bool {
     // 1. Query parameter: ?format=markdown
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public API, no state change.
     if ( isset( $_GET['format'] ) && 'markdown' === sanitize_text_field( wp_unslash( $_GET['format'] ) ) ) {
         return true;
     }
@@ -420,7 +425,7 @@ function mfa_should_serve_markdown(): bool {
     if ( apply_filters( 'markdown_enable_accept_header', true ) ) {
         if (
             isset( $_SERVER['HTTP_ACCEPT'] )
-            && str_contains( $_SERVER['HTTP_ACCEPT'], 'text/markdown' )
+            && str_contains( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ), 'text/markdown' )
         ) {
             return true;
         }

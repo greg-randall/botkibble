@@ -67,6 +67,7 @@ function mfa_convert_post( WP_Post $post ): array {
     if ( false === @file_put_contents( $file_path, $markdown, LOCK_EX ) ) {
         mfa_log( 'failed to write cache file: ' . $file_path );
     } else {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch -- no WP equivalent; sets mtime for cache freshness.
         touch( $file_path, $post_modified_ts );
     }
 
@@ -144,6 +145,7 @@ function mfa_write_meta( string $meta_path, array $data ): void {
  * @param string $message The message to log (prefixed with "Markdown for Agents: ").
  */
 function mfa_log( string $message ): void {
+    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional operational logging.
     error_log( 'Markdown for Agents: ' . $message );
 }
 
@@ -195,8 +197,8 @@ function mfa_get_post_uri( WP_Post $post ): string {
         return '';
     }
 
-    $urlPath  = parse_url( $permalink, PHP_URL_PATH ) ?: '';
-    $sitePath = parse_url( site_url(), PHP_URL_PATH ) ?: '';
+    $urlPath  = wp_parse_url( $permalink, PHP_URL_PATH ) ?: '';
+    $sitePath = wp_parse_url( site_url(), PHP_URL_PATH ) ?: '';
 
     // Remove the site's subdirectory (if any) and trim slashes.
     $uri = substr( $urlPath, strlen( $sitePath ) );
@@ -277,6 +279,7 @@ function mfa_render_body( WP_Post $post ): array {
     $GLOBALS['post'] = $post;
     setup_postdata( $post );
 
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- calling WP core hook, not defining one.
     $html = apply_filters( 'the_content', $post->post_content );
 
     // Restore previous state.
