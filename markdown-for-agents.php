@@ -3,7 +3,7 @@
  * Plugin Name: Markdown for Agents
  * Plugin URI:  https://github.com/greg-randall/markdown-for-agents
  * Description: Serve published posts and pages as clean Markdown for AI agents and crawlers.
- * Version:     1.1.1
+ * Version:     1.1.2
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author:      Greg Randall
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'MFA_VERSION', '1.1.1' );
+define( 'MFA_VERSION', '1.1.2' );
 define( 'MFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 // Require Composer autoloader.
@@ -60,12 +60,19 @@ add_action( 'init', function () {
 } );
 
 register_activation_hook( __FILE__, function () {
-    // routing.php is already included above, so the add_rewrite_rule()
-    // call has fired and the rule is registered before we flush.
+    // init may have already fired by the time activation runs, so the
+    // add_action('init', ...) callback in routing.php never executes.
+    // Register the rule directly before flushing to guarantee it's saved.
+    mfa_register_rewrite_rule();
     flush_rewrite_rules();
 } );
 
-register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
+register_deactivation_hook( __FILE__, function () {
+    flush_rewrite_rules();
+    // Clear the version so the version-bump check re-flushes on reactivation,
+    // even if the same version is reinstalled.
+    delete_option( 'mfa_version' );
+} );
 
 /**
  * Wipe the entire markdown cache when any plugin is activated, deactivated,
