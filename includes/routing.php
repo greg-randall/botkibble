@@ -128,7 +128,6 @@ add_action( 'init', function (): void {
     $tokens = (int) ( $meta['tokens'] ?? 0 );
 
     header( 'Content-Type: text/markdown; charset=utf-8' );
-    header( 'Content-Length: ' . strlen( $markdown ) );
     header( 'Vary: Accept' );
     header( 'X-Content-Type-Options: nosniff' );
     header( 'X-Markdown-Tokens: ' . $tokens );
@@ -136,6 +135,12 @@ add_action( 'init', function (): void {
     $canonical = ( '_front-page' === $safe_slug ) ? home_url( '/' ) : home_url( $safe_slug . '/' );
     header( 'Link: <' . esc_url( $canonical ) . '>; rel="canonical"' );
     mfa_send_content_signal_header();
+
+    // If anything wrote to an active output buffer before this point, clear it so
+    // the Markdown body starts at byte 0 (prevents prefix bytes + tail truncation).
+    if ( function_exists( 'ob_get_level' ) && ob_get_level() > 0 ) {
+        @ob_clean();
+    }
 
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- serving text/markdown, not HTML.
     echo $markdown;
@@ -287,13 +292,16 @@ add_action( 'template_redirect', function (): void {
 
     status_header( 200 );
     header( 'Content-Type: text/markdown; charset=utf-8' );
-    header( 'Content-Length: ' . strlen( $markdown ) );
     header( 'Vary: Accept' );
     header( 'X-Content-Type-Options: nosniff' );
     header( 'X-Markdown-Tokens: ' . $tokens );
     header( 'X-Robots-Tag: noindex' );
     header( 'Link: <' . esc_url( get_permalink( $post ) ) . '>; rel="canonical"' );
     mfa_send_content_signal_header( $post );
+
+    if ( function_exists( 'ob_get_level' ) && ob_get_level() > 0 ) {
+        @ob_clean();
+    }
 
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- serving text/markdown, not HTML.
     echo $markdown;
