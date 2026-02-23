@@ -344,7 +344,7 @@ add_action( 'send_headers', function (): void {
     }
 
     // Only on normal HTML responses (not when we're serving Markdown).
-    if ( mfa_should_serve_markdown() ) {
+    if ( botkibble_should_serve_markdown() ) {
         return;
     }
 
@@ -357,7 +357,7 @@ add_action( 'send_headers', function (): void {
         return;
     }
 
-    $allowed = apply_filters( 'markdown_served_post_types', [ 'post', 'page' ] );
+    $allowed = apply_filters( 'botkibble_served_post_types', [ 'post', 'page' ] );
     if ( ! in_array( $post->post_type, $allowed, true ) ) {
         return;
     }
