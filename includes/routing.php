@@ -321,7 +321,7 @@ add_action( 'wp_head', function (): void {
         return;
     }
 
-    $url = mfa_get_markdown_alternate_url( $post );
+    $url = botkibble_get_markdown_alternate_url( $post );
     if ( ! $url ) {
         return;
     }
@@ -365,7 +365,7 @@ add_action( 'send_headers', function (): void {
         return;
     }
 
-    $markdown_url = mfa_get_markdown_alternate_url( $post );
+    $markdown_url = botkibble_get_markdown_alternate_url( $post );
     if ( ! $markdown_url ) {
         return;
     }
@@ -523,8 +523,8 @@ function botkibble_regen_throttled(): bool {
  * - query  (default): https://example.com/post/?format=markdown
  * - suffix:           https://example.com/post.md
  */
-function mfa_get_markdown_alternate_url( WP_Post $post ): string {
-    $mode = (string) apply_filters( 'markdown_alternate_url_mode', 'query', $post );
+function botkibble_get_markdown_alternate_url( WP_Post $post ): string {
+    $mode = (string) apply_filters( 'botkibble_alternate_url_mode', 'query', $post );
     $mode = strtolower( trim( $mode ) );
     if ( ! in_array( $mode, [ 'query', 'suffix' ], true ) ) {
         $mode = 'query';
