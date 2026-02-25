@@ -4,7 +4,7 @@ Tags: markdown, ai, agents, crawlers, api
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.2
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPL-2.0-only
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -214,6 +214,9 @@ They return a `403 Forbidden` response. There's no point serving a password form
 * `Content-Signal: ai-train=yes, search=yes, ai-input=yes` — see [contentsignals.org](https://contentsignals.org/)
 
 == Changelog ==
+
+= 1.2.1 =
+* Changed cache directory from /uploads/botkibble-cache/ to /uploads/botkibble/ per plugin guidelines.
 
 = 1.2.0 =
 * Rebranded to Botkibble to avoid naming ambiguity.

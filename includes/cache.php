@@ -37,10 +37,11 @@ function botkibble_sanitize_cache_variant( string $variant ): string {
 function botkibble_get_cache_variant( ?WP_Post $post = null ): string {
     $variant = '';
 
-    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public API, no state change.
+    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only public query param, no state change.
     if ( isset( $_GET['botkibble_variant'] ) ) {
         $variant = sanitize_text_field( wp_unslash( $_GET['botkibble_variant'] ) );
     }
+    // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
     /**
      * Filter the cache variant for this request.
