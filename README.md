@@ -28,6 +28,7 @@ This plugin implements origin-level Markdown serving, similar to Cloudflare's ed
 - **SEO & Security:**
   - Sends `X-Robots-Tag: noindex` to prevent Markdown versions from appearing in search results.
   - Sends `Link: <url>; rel="canonical"` to point search engines back to the HTML version.
+  - Automates discovery via `<link rel="alternate">` tags (body) and HTTP `Link` headers.
   - Rate limits cache-miss regenerations to mitigate DOS attacks.
   - Blocks access to drafts, private posts, and password-protected content.
 
@@ -46,6 +47,13 @@ For maximum performance, you can add a web server rule to serve the cached `.md`
 
 ### Nginx Configuration
 ```nginx
+# Cache Variants (direct serving)
+location ~* ^/(_v/[^/]+/.+)\.md$ {
+    default_type text/markdown;
+    try_files /wp-content/uploads/botkibble-cache/$1.md /index.php?$args;
+}
+
+# Default Cache
 location ~* ^/(.+)\.md$ {
     default_type text/markdown;
     try_files /wp-content/uploads/botkibble-cache/$1.md /index.php?$args;
@@ -56,9 +64,17 @@ location ~* ^/(.+)\.md$ {
 Add this before the WordPress rewrite rules:
 ```apache
 RewriteEngine On
+
+# Cache Variants (direct serving)
+RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble-cache/_v/$1/$2.md -f
+RewriteRule ^_v/([^/]+)/(.+)\.md$ /wp-content/uploads/botkibble-cache/_v/$1/$2.md [L,T=text/markdown]
+
+# Default Cache
 RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble-cache/$1.md -f
 RewriteRule ^(.*)\.md$ /wp-content/uploads/botkibble-cache/$1.md [L,T=text/markdown]
 ```
+
+**Note:** Serving `.md` files directly via Nginx or Apache bypasses PHP entirely. This means developer filters like `botkibble_output` will NOT run for cached requests served this way. The first request (the "cold" cache miss) will always run through PHP to generate the file.
 
 The first request for any post still goes through PHP to generate and cache the Markdown. After that, all subsequent requests are served as static files.
 
@@ -72,6 +88,7 @@ The plugin is highly extensible via WordPress filters:
 | `botkibble_frontmatter` | Add or remove fields in the YAML block. |
 | `botkibble_clean_html` | Clean up HTML (remove specific divs/styles) before conversion. |
 | `botkibble_converter_remove_nodes` | Opt in to removing full HTML node types in converter (e.g., `script`). |
+| `botkibble_body` | Modify the Markdown body before metrics calculation (useful for adding content like ld+json). |
 | `botkibble_output` | Modify the final Markdown string before it's cached/served. |
 | `botkibble_cache_variant` | Override the cache variant for the current request (used with `?botkibble_variant=...`). |
 | `botkibble_cache_variants` | Return a list of cache variants to invalidate on post updates (e.g., `['slim']`). |

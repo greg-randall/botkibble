@@ -48,13 +48,21 @@ function botkibble_convert_post( WP_Post $post ): array {
     $result     = botkibble_render_body( $post );
     $title      = html_entity_decode( get_the_title( $post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
     $body       = "# " . $title . "\n\n" . trim( $result['markdown'] );
-    $word_count = $result['word_count'] + str_word_count( $title );
+
+    /**
+     * Allow plugins to modify the Markdown body BEFORE metrics are calculated.
+     * This ensures that any added content (like ld+json) is reflected in the
+     * word count, char count, and estimated tokens.
+     */
+    $body = apply_filters( 'botkibble_body', $body, $post );
+
+    $word_count = str_word_count( wp_strip_all_tags( $body ) );
     $tokens     = botkibble_estimate_tokens( $word_count );
     $frontmatter = botkibble_build_frontmatter( $post, $body, $word_count, $tokens );
 
     $markdown = $frontmatter . "\n" . $body . "\n";
 
-    /** Allow plugins to modify the final output. */
+    /** Allow plugins to modify the final document (frontmatter + body). */
     $markdown = apply_filters( 'botkibble_output', $markdown, $post );
 
     // Ensure the directory exists. Only write protection files on creation.
