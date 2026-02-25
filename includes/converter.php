@@ -99,7 +99,7 @@ function botkibble_convert_post( WP_Post $post ): array {
  * Get the absolute path to the static cache file for a given post.
  *
  * @param WP_Post $post The post to get the cache path for.
- * @return string Absolute filesystem path (e.g. /wp-content/uploads/botkibble-cache/my-post.md).
+ * @return string Absolute filesystem path (e.g. /wp-content/uploads/botkibble/my-post.md).
  */
 function botkibble_get_cache_path( WP_Post $post, ?string $variant = null ): string {
     $uri = botkibble_get_post_uri( $post );

@@ -68,7 +68,7 @@ add_action( 'init', function (): void {
 
     // Construct the expected cache path and verify containment.
     $upload_dir = wp_upload_dir();
-    $cache_base = $upload_dir['basedir'] . '/botkibble-cache';
+    $cache_base = $upload_dir['basedir'] . '/botkibble';
     $variant    = botkibble_get_cache_variant( null );
     $file_path  = botkibble_cache_path_for_slug( $safe_slug, $variant );
 
@@ -395,7 +395,7 @@ add_action( 'before_delete_post', 'botkibble_invalidate_cache' );
 /** Invalidate front-page cache when the static front page setting changes. */
 add_action( 'update_option_page_on_front', function (): void {
     $upload_dir = wp_upload_dir();
-    $cache_base = $upload_dir['basedir'] . '/botkibble-cache';
+    $cache_base = $upload_dir['basedir'] . '/botkibble';
     botkibble_delete_cache_files( $cache_base . '/_front-page.md' );
 
     // Also invalidate configured variants for the front page.

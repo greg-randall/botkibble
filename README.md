@@ -20,11 +20,11 @@ This plugin implements origin-level Markdown serving, similar to Cloudflare's ed
   - **Content Negotiation** (e.g., `Accept: text/markdown` header)
 - **Cache Variants (Optional):**
   - Request alternate cached representations by adding `?botkibble_variant=slim` (or any other variant name).
-  - Variant caches are stored separately under `wp-content/uploads/botkibble-cache/_v/<variant>/...` to avoid collisions.
+  - Variant caches are stored separately under `wp-content/uploads/botkibble/_v/<variant>/...` to avoid collisions.
 - **Rich YAML Frontmatter:** Includes title, date, categories, tags, `word_count`, `char_count`, and an estimated `tokens` count.
 - **High-Performance Caching:** 
   - **Fast-Path Serving:** Bypasses the main WordPress query and template redirect for cached content.
-  - **Static Offloading:** Caches Markdown as physical files in `wp-content/uploads/botkibble-cache/`.
+  - **Static Offloading:** Caches Markdown as physical files in `wp-content/uploads/botkibble/`.
 - **SEO & Security:**
   - Sends `X-Robots-Tag: noindex` to prevent Markdown versions from appearing in search results.
   - Sends `Link: <url>; rel="canonical"` to point search engines back to the HTML version.
@@ -50,13 +50,13 @@ For maximum performance, you can add a web server rule to serve the cached `.md`
 # Cache Variants (direct serving)
 location ~* ^/(_v/[^/]+/.+)\.md$ {
     default_type text/markdown;
-    try_files /wp-content/uploads/botkibble-cache/$1.md /index.php?$args;
+    try_files /wp-content/uploads/botkibble/$1.md /index.php?$args;
 }
 
 # Default Cache
 location ~* ^/(.+)\.md$ {
     default_type text/markdown;
-    try_files /wp-content/uploads/botkibble-cache/$1.md /index.php?$args;
+    try_files /wp-content/uploads/botkibble/$1.md /index.php?$args;
 }
 ```
 
@@ -66,12 +66,12 @@ Add this before the WordPress rewrite rules:
 RewriteEngine On
 
 # Cache Variants (direct serving)
-RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble-cache/_v/$1/$2.md -f
-RewriteRule ^_v/([^/]+)/(.+)\.md$ /wp-content/uploads/botkibble-cache/_v/$1/$2.md [L,T=text/markdown]
+RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble/_v/$1/$2.md -f
+RewriteRule ^_v/([^/]+)/(.+)\.md$ /wp-content/uploads/botkibble/_v/$1/$2.md [L,T=text/markdown]
 
 # Default Cache
-RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble-cache/$1.md -f
-RewriteRule ^(.*)\.md$ /wp-content/uploads/botkibble-cache/$1.md [L,T=text/markdown]
+RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble/$1.md -f
+RewriteRule ^(.*)\.md$ /wp-content/uploads/botkibble/$1.md [L,T=text/markdown]
 ```
 
 **Note:** Serving `.md` files directly via Nginx or Apache bypasses PHP entirely. This means developer filters like `botkibble_output` will NOT run for cached requests served this way. The first request (the "cold" cache miss) will always run through PHP to generate the file.
@@ -100,8 +100,8 @@ The plugin is highly extensible via WordPress filters:
 
 Botkibble can persist multiple cached Markdown representations for the same post without filename collisions.
 
-- **Default cache**: `wp-content/uploads/botkibble-cache/<slug>.md`
-- **Variant cache**: `wp-content/uploads/botkibble-cache/_v/<variant>/<slug>.md`
+- **Default cache**: `wp-content/uploads/botkibble/<slug>.md`
+- **Variant cache**: `wp-content/uploads/botkibble/_v/<variant>/<slug>.md`
 
 Request a variant by adding the query param:
 

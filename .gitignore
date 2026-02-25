@@ -21,7 +21,6 @@ composer.phar
 # Plugin Distribution
 *.zip
 botkibble/
-botkibble-cache/
 
 # Testing
 test-html-md/

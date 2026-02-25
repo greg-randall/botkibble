@@ -27,7 +27,7 @@ Botkibble converts any published post or page on your WordPress site to Markdown
 You can persist alternate cached representations by adding `?botkibble_variant=slim` (or any other variant name).
 Variant caches are stored under:
 
-    /wp-content/uploads/botkibble-cache/_v/<variant>/<slug>.md
+    /wp-content/uploads/botkibble/_v/<variant>/<slug>.md
 
 **What you get:**
 
@@ -57,7 +57,7 @@ If you use Cloudflare, both share the same `Accept: text/markdown` header, `Cont
 
 == Performance & Static Offloading ==
 
-This plugin supports static file offloading by writing Markdown content to `/wp-content/uploads/botkibble-cache/`. 
+This plugin supports static file offloading by writing Markdown content to `/wp-content/uploads/botkibble/`. 
 
 === Nginx Configuration ===
 To bypass PHP entirely and have Nginx serve the files (including variants) directly:
@@ -66,13 +66,13 @@ To bypass PHP entirely and have Nginx serve the files (including variants) direc
 # Variants
 location ~* ^/(_v/[^/]+/.+)\.md$ {
     default_type text/markdown;
-    try_files /wp-content/uploads/botkibble-cache/$1.md /index.php?$args;
+    try_files /wp-content/uploads/botkibble/$1.md /index.php?$args;
 }
 
 # Default
 location ~* ^/(.+)\.md$ {
     default_type text/markdown;
-    try_files /wp-content/uploads/botkibble-cache/$1.md /index.php?$args;
+    try_files /wp-content/uploads/botkibble/$1.md /index.php?$args;
 }
 `
 
@@ -82,12 +82,12 @@ Add this to your `.htaccess` before the WordPress rules:
 `
 RewriteEngine On
 # Variants
-RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble-cache/_v/$1/$2.md -f
-RewriteRule ^_v/([^/]+)/(.+)\.md$ /wp-content/uploads/botkibble-cache/_v/$1/$2.md [L,T=text/markdown]
+RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble/_v/$1/$2.md -f
+RewriteRule ^_v/([^/]+)/(.+)\.md$ /wp-content/uploads/botkibble/_v/$1/$2.md [L,T=text/markdown]
 
 # Default
-RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble-cache/$1.md -f
-RewriteRule ^(.*)\.md$ /wp-content/uploads/botkibble-cache/$1.md [L,T=text/markdown]
+RewriteCond %{DOCUMENT_ROOT}/wp-content/uploads/botkibble/$1.md -f
+RewriteRule ^(.*)\.md$ /wp-content/uploads/botkibble/$1.md [L,T=text/markdown]
 `
 
 Even without these rules, the plugin uses a "Fast-Path" that serves cached files from PHP before the main database query is executed.

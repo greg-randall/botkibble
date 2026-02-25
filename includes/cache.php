@@ -63,7 +63,7 @@ function botkibble_get_cache_variant( ?WP_Post $post = null ): string {
  */
 function botkibble_cache_path_for_slug( string $safe_slug, string $variant = '' ): string {
     $upload_dir = wp_upload_dir();
-    $base_dir   = $upload_dir['basedir'] . '/botkibble-cache';
+    $base_dir   = $upload_dir['basedir'] . '/botkibble';
 
     $variant = botkibble_sanitize_cache_variant( $variant );
     if ( '' !== $variant ) {

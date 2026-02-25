@@ -86,7 +86,7 @@ add_action( 'switch_theme', 'botkibble_flush_entire_cache' );
 
 function botkibble_flush_entire_cache(): void {
     $upload_dir = wp_upload_dir();
-    $cache_dir  = $upload_dir['basedir'] . '/botkibble-cache';
+    $cache_dir  = $upload_dir['basedir'] . '/botkibble';
 
     if ( ! is_dir( $cache_dir ) ) {
         return;
