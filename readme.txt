@@ -152,6 +152,18 @@ Yes, use the `botkibble_clean_html` filter. This runs after the default cleanup 
         return $html;
     } );
 
+= Can I strip script nodes during conversion? =
+
+Yes. Botkibble keeps converter node removal disabled by default (for backward compatibility), but you can opt in with `botkibble_converter_remove_nodes`:
+
+    add_filter( 'botkibble_converter_remove_nodes', function ( $nodes ) {
+        $nodes = is_array( $nodes ) ? $nodes : [];
+        $nodes[] = 'script';
+        return $nodes;
+    } );
+
+If you also need `application/ld+json`, extract it in `botkibble_clean_html` first, then let converter-level script removal clean up any remaining script tags.
+
 = How do I modify the final Markdown output? =
 
 Use the `botkibble_output` filter to append or modify the text after conversion:
