@@ -8,11 +8,15 @@ Stable tag: 1.2.1
 License: GPL-2.0-only
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Serve published posts and pages as clean Markdown with YAML frontmatter — built for AI agents and crawlers.
+Make your WordPress content AI-ready. Every post and page served as clean Markdown — no config, no API keys, activate, and go.
 
 == Description ==
 
-Botkibble converts any published post or page on your WordPress site to Markdown. It caches the output and serves it with `text/markdown` headers.
+AI agents, LLMs, and crawlers have to wade through navigation bars, sidebars, ads, and comment forms just to get to the content they actually want — and every one of those elements costs tokens. [Cloudflare measured](https://blog.cloudflare.com/markdown-for-agents/) an **80% reduction in token usage** when converting a blog post from HTML to Markdown (16,180 tokens down to 3,150). Less noise means faster, cheaper AI access to your content.
+
+Botkibble adds a Markdown endpoint to every published post and page on your site. Activate it and your content is immediately available to any agent that asks for it.
+
+Cloudflare offers [Markdown for Agents](https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/) at the CDN edge on Pro, Business, and Enterprise plans. Botkibble does the same thing (for free) at the origin, so it works on any host.
 
 [GitHub Repository](https://github.com/greg-randall/botkibble)
 
@@ -21,6 +25,38 @@ Botkibble converts any published post or page on your WordPress site to Markdown
 * **`.md` suffix** — append `.md` to any post or page URL (e.g. `example.com/my-post.md`)
 * **Query parameter** — add `?format=markdown` to any post or page URL
 * **Content negotiation** — send `Accept: text/markdown` in the request header
+
+**What's in every response:**
+
+* Structured metadata header with title, date, categories, tags, word count, character count, and estimated token count (in YAML frontmatter format, readable by any AI agent)
+* Clean Markdown converted from fully-rendered post HTML (shortcodes run, filters applied)
+* `Content-Type: text/markdown` and `Vary: Accept` response headers
+* `Content-Signal` header for AI signal declaration (`ai-train`, `search`, `ai-input`) — see [contentsignals.org](https://contentsignals.org/)
+* `X-Markdown-Tokens` header with estimated token count
+* Discovery via `<link rel="alternate">` in the HTML head and `Link` HTTP header
+* Automatic cache invalidation when a post is updated or deleted
+
+**Performance:**
+
+Botkibble writes Markdown to disk on the first request, then serves it as a static file. A built-in Fast-Path serves cached files during WordPress's `init` hook, before the main database query runs — no extra configuration needed.
+
+Add a web server rewrite rule and Botkibble bypasses PHP entirely, serving `.md` files the same way a server would serve an image or CSS file:
+
+| Method | Avg. response time |
+|---|---|
+| Standard HTML | 0.97s |
+| Markdown (cold, first request) | 0.95s |
+| Markdown (cached, PHP Fast-Path) | 0.87s |
+| Markdown (Nginx/Apache direct) | 0.11s |
+
+Serving directly from disk is **88% faster** than a full WordPress page load. See the Performance section below for Nginx and Apache configuration.
+
+**Security:**
+
+* Drafts, private posts, and password-protected content return `403 Forbidden`
+* Rate limits cache-miss regenerations (20/min by default) to mitigate DoS abuse
+* `X-Robots-Tag: noindex` keeps Markdown versions out of search results
+* `Link: rel="canonical"` points search engines back to the HTML version
 
 **Cache variants (optional):**
 
