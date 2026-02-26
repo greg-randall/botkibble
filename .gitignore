@@ -4,6 +4,7 @@
 # Ignore all markdown files
 *.md
 !README.md
+!wordpress-svn-notes.md
 
 # System files
 .DS_Store
